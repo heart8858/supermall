@@ -1,6 +1,12 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <tab-control
+      :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      v-show="isTabFixed"
+    />
     <scroll
       class="content"
       ref="scroll"
@@ -18,7 +24,7 @@
       <tab-control
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
-        ref="tabControl"
+        ref="tabControl2"
       />
       <good-list :goods="showGoods" />
     </scroll>
@@ -129,13 +135,15 @@ export default {
           this.currentType = "sell";
           break;
       }
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0, 500);
     },
     contentscroll(position) {
       // 1.判断backTop是否显示
-      // this.isShowBackTop = -position.y > 1000;
+      this.isShowBackTop = -position.y > 1000;
 
       // 2.决定tabControl是否吸顶(position:fixed)
       this.isTabFixed = -position.y > this.tabOffsetTop;
@@ -145,7 +153,7 @@ export default {
       // this.$refs.scroll.scroll.refresh();
     }, 500),
     swiperImageLoad() {
-      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
   },
 };
@@ -160,16 +168,16 @@ export default {
 .home-nav {
   background-color: var(--color-tint);
   color: #fff;
-  position: fixed;
+  /* position: fixed;
   left: 0;
   right: 0;
   top: 0;
-  z-index: 9;
+  z-index: 9; */
 }
 
 .content {
   height: calc(100% - 93px);
   overflow: hidden;
-  margin-top: 44px;
+  /* margin-top: 44px; */
 }
 </style>
