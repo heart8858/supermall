@@ -1,13 +1,18 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav" />
+    <detail-nav-bar
+      class="detail-nav"
+      :pull-up-load="false"
+      @titleClick="titleClick"
+    />
     <scroll class="content" ref="scroll">
       <detail-swiper :top-images="topImages" />
       <detail-base-info :goods="goods" />
       <detail-shop-info :shop="shop" />
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad" />
-      <detail-param-info :param-info="paramInfo" />
-      <detail-comment-info :comment-info="commentInfo" />
+      <detail-param-info :param-info="paramInfo" ref="params" />
+      <detail-comment-info :comment-info="commentInfo" ref="comment" />
+      <good-list :goods="recommends" ref="recommend" />
     </scroll>
   </div>
 </template>
@@ -22,7 +27,15 @@ import DetailParamInfo from "./childComps/DetailParamInfo";
 import DetailCommentInfo from "./childComps/DetailCommentInfo";
 
 import Scroll from "components/common/scroll/Scroll";
-import { getDetail, Goods, Shop, GoodsParam } from "network/detail";
+import { debounce } from "common/utils";
+import GoodList from "components/content/goods/GoodList";
+import {
+  getDetail,
+  Goods,
+  Shop,
+  GoodsParam,
+  getRecommend,
+} from "network/detail";
 export default {
   name: "Detail",
   components: {
@@ -34,6 +47,7 @@ export default {
     DetailParamInfo,
     DetailCommentInfo,
     Scroll,
+    GoodList,
   },
   data() {
     return {
@@ -44,6 +58,8 @@ export default {
       detailInfo: {},
       paramInfo: {},
       commentInfo: {},
+      recommends: [],
+      themeTopYs: [],
     };
   },
   created() {
@@ -51,7 +67,7 @@ export default {
     this.iid = this.$route.params.iid;
     // 2.根据iid请求详情的数据
     getDetail(this.iid).then((response) => {
-      console.log(response);
+      // console.log(response);
       const data = response.result;
       // 1.获取顶部图片轮播数据
       this.topImages = data.itemInfo.topImages;
@@ -79,11 +95,44 @@ export default {
       if (data.rate.cRate !== 0) {
         this.commentInfo = data.rate.list[0];
       }
+      //执行nextTick函数保证DOM渲染完毕
+      // this.$nextTick(() => {
+      //   this.themeTopYs = [];
+      //   this.themeTopYs.push(0);
+      //   this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+      //   this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+      //   this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+      //   console.log(this.themeTopYs);
+      // });
+    });
+    // 3.请求推荐数据
+    getRecommend().then((response) => {
+      console.log(response);
+      this.recommends = response.data.list;
     });
   },
+  mounted() {
+    const refresh = debounce(this.$refs.scroll.refresh, 500);
+    this.$bus.$on("lItemImageLoad", () => {
+      refresh();
+    });
+  },
+  updated() {},
   methods: {
     imageLoad() {
       this.$refs.scroll.refresh();
+
+      this.themeTopYs = [];
+      this.themeTopYs.push(0);
+      this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+      console.log(this.themeTopYs);
+    },
+    titleClick(index) {
+      // console.log(index);
+      //注意加上44px的tab高度
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index] + 44, 200);
     },
   },
 };

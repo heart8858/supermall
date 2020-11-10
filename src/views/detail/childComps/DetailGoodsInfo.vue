@@ -32,7 +32,7 @@ export default {
       imagesLength: 0,
     };
   },
-  method: {
+  methods: {
     imgLoad() {
       //判断所有的图片都加载完了，进行一次回调
       if (++this.counter === this.imagesLength) {

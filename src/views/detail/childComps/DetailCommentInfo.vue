@@ -14,7 +14,7 @@
     <div class="info-detail">
       <p>{{ commentInfo.content }}</p>
       <div class="info-other">
-        <span class="date">{{ commentInfo.created }}</span>
+        <span class="date">{{ commentInfo.created | formatDate }}</span>
         <span>{{ commentInfo.style }}</span>
       </div>
       <div class="info-imgs">
