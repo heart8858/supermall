@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import Moment from 'moment'
+import store from './store'
 
 // 定义全局时间戳过滤器
 Vue.filter('formatDate', function (value) {
@@ -14,5 +15,6 @@ Vue.prototype.$bus = new Vue()
 
 new Vue({
   render: h => h(App),
-  router
+  router,
+  store
 }).$mount('#app')

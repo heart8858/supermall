@@ -4,8 +4,14 @@
       class="detail-nav"
       :pull-up-load="false"
       @titleClick="titleClick"
+      ref="nav"
     />
-    <scroll class="content" ref="scroll">
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      @scroll="contentScroll"
+    >
       <detail-swiper :top-images="topImages" />
       <detail-base-info :goods="goods" />
       <detail-shop-info :shop="shop" />
@@ -14,6 +20,7 @@
       <detail-comment-info :comment-info="commentInfo" ref="comment" />
       <good-list :goods="recommends" ref="recommend" />
     </scroll>
+    <detail-bottom-bar @addCart="addToCart" />
   </div>
 </template>
 
@@ -25,6 +32,7 @@ import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailParamInfo from "./childComps/DetailParamInfo";
 import DetailCommentInfo from "./childComps/DetailCommentInfo";
+import DetailBottomBar from "./childComps/DetailBottomBar";
 
 import Scroll from "components/common/scroll/Scroll";
 import { debounce } from "common/utils";
@@ -46,6 +54,7 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    DetailBottomBar,
     Scroll,
     GoodList,
   },
@@ -60,6 +69,7 @@ export default {
       commentInfo: {},
       recommends: [],
       themeTopYs: [],
+      currentIndex: 0,
     };
   },
   created() {
@@ -127,12 +137,61 @@ export default {
       this.themeTopYs.push(this.$refs.params.$el.offsetTop);
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+      this.themeTopYs.push(Number.MAX_VALUE);
       console.log(this.themeTopYs);
     },
     titleClick(index) {
       // console.log(index);
       //注意加上44px的tab高度
       this.$refs.scroll.scrollTo(0, -this.themeTopYs[index] + 44, 200);
+    },
+    contentScroll(position) {
+      // 1.获取Y值
+      const positionY = -position.y;
+
+      // 2.positionY的值和themeTopYs中的值进行对比
+      let length = this.themeTopYs.length;
+      for (let i = 0; i < length - 1; i++) {
+        // console.log(i); //str
+        // if (
+        //   positionY > this.themeTopYs[i] &&
+        //   positionY < this.themeTopYs[i + 1]
+        // )
+
+        //普通做法
+        // if (
+        //   this.currentIndex !== i &&
+        //   ((i < length - 1 &&
+        //     positionY >= this.themeTopYs[i] &&
+        //     positionY < this.themeTopYs[i + 1]) ||
+        //     (i === length - 1 && positionY >= this.themeTopYs[i]))
+        // ) {
+        //   this.currentIndex = i;
+        //   // console.log(this.currentIndex);
+        //   this.$refs.nav.currentIndex = this.currentIndex;
+        // }
+
+        if (
+          this.currentIndex !== i &&
+          positionY >= this.themeTopYs[i] &&
+          positionY < this.themeTopYs[i + 1]
+        ) {
+          this.currentIndex = i;
+          this.$refs.nav.currentIndex = this.currentIndex;
+        }
+      }
+    },
+    addToCart() {
+      // 1.获取购物车需要展示的信息
+      const product = {};
+      product.image = this.topImages[0];
+      product.title = this.goods.title;
+      product.desc = this.goods.desc;
+      product.price = this.goods.nowPrice;
+      product.iid = this.iid;
+
+      // 2.将商品添加到购物车
+      this.$store.commit("addCart", product);
     },
   },
 };
@@ -151,6 +210,6 @@ export default {
   background-color: #fff;
 }
 .content {
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 58px);
 }
 </style>
