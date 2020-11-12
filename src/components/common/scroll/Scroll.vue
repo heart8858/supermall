@@ -33,6 +33,7 @@ export default {
       click: true,
       probeType: this.probeType,
       pullUpLoad: this.pullUpLoad,
+      // mouseWheel: false,
     });
 
     //2.监听滚动的位置
