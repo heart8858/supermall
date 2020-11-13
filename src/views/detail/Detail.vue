@@ -22,6 +22,8 @@
       <good-list :goods="recommends" ref="recommend" />
     </scroll>
     <detail-bottom-bar @addCart="addToCart" />
+
+    <!-- <toast :message="试一下" /> -->
   </div>
 </template>
 
@@ -45,6 +47,8 @@ import {
   GoodsParam,
   getRecommend,
 } from "network/detail";
+
+// import Toast from "components/common/toast/Toast";
 export default {
   name: "Detail",
   components: {
@@ -58,6 +62,7 @@ export default {
     DetailBottomBar,
     Scroll,
     GoodList,
+    // Toast,
   },
   data() {
     return {
@@ -193,7 +198,13 @@ export default {
 
       // 2.将商品添加到购物车
       // this.$store.commit("addCart", product);
-      this.$store.dispatch("addCart", product);
+      this.$store.dispatch("addCart", product).then((res) => {
+        // console.log(res);
+        this.$toast.show(res, 1500);
+        // console.log(this.$toast);
+      });
+
+      // 3.添加到购物车成功
     },
   },
 };

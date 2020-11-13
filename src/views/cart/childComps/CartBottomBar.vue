@@ -24,7 +24,7 @@ export default {
   },
   computed: {
     totalPrice() {
-      return this.$store.state.cartGoods
+      return this.$store.state.cartList
         .filter((item) => {
           return item.isCheck === true;
         })
@@ -34,24 +34,23 @@ export default {
         .toFixed(2);
     },
     calcCount() {
-      return this.$store.state.cartGoods.filter((item) => {
+      return this.$store.state.cartList.filter((item) => {
         return item.isCheck === true;
       }).length;
     },
     isSelectAll() {
-      if (this.$store.state.cartGoods.length === 0) {
+      if (this.$store.state.cartList.length === 0) {
         return false;
       }
-      return !this.$store.state.cartGoods.filter((item) => !item.isCheck)
-        .length;
+      return !this.$store.state.cartList.filter((item) => !item.isCheck).length;
     },
   },
   methods: {
     selectAllClick() {
       if (this.isSelectAll) {
-        this.$store.state.cartGoods.forEach((item) => (item.isCheck = false));
+        this.$store.state.cartList.forEach((item) => (item.isCheck = false));
       } else {
-        this.$store.state.cartGoods.forEach((item) => (item.isCheck = true));
+        this.$store.state.cartList.forEach((item) => (item.isCheck = true));
       }
     },
   },
